@@ -4,9 +4,21 @@
 
 后端 Django + DRF + SimpleJWT，前端 Vue 3 + Element Plus。
 
-> **状态：已归档。** 线上实例和数据库都已下线，仓库作为学习和留档保留，不再维护。
->
-> ⚠️ 另外，本仓库**只提交了后端和前端配置，`vue/my-vue-project/src/` 源码缺失**，clone 下来只能把后端跑起来。详见[已知限制](#已知限制)。
+> **状态：已归档。** 线上实例和数据库都已下线，仓库作为学习和留档保留，不再维护。本地仍可完整跑起来（见[快速开始](#快速开始)）。
+
+---
+
+## 效果
+
+| 首页（分类导航 + 搜索 + 文章列表） | 文章详情 |
+|---|---|
+| ![首页](docs/images/01-home.webp) | ![文章详情](docs/images/02-article.webp) |
+
+| 登录（JWT） | 个人主页（资料 / 成就 / 文章 / 关注） |
+|---|---|
+| ![登录](docs/images/03-login.webp) | ![个人主页](docs/images/04-profile.webp) |
+
+截图是本地跑起来后实拍的，数据是 `migrate` 之后自己造的一批演示文章。
 
 ---
 
@@ -32,7 +44,7 @@
 - Pillow（封面上传）、MySQL（可换 SQLite）
 - 时区 `Asia/Shanghai`，语言 `zh-hans`
 
-**前端**（源码未入库，以下按 `package.json` 记录）
+**前端**
 
 - Vue 3 + Vite
 - Element Plus + `@element-plus/icons-vue`
@@ -57,7 +69,7 @@
 │   ├── my-vue-project/         # Vue 前端
 │   │   ├── package.json
 │   │   ├── vite.config.js
-│   │   └── src/                # ⚠️ 未提交
+│   │   └── src/                # 页面 / 组件 / 路由 / store / api
 │   └── package.json
 └── README.md
 ```
@@ -99,7 +111,7 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-**这一步现在会失败**，因为 `src/` 不在仓库里，`index.html` 引的 `/src/main.js` 不存在。
+接口地址写死在 `src/utils/request.js` 里的 `http://127.0.0.1:8000`，所以后端要先起来。文章封面是后端返回的 `/media/...` 相对路径，`vite.config.js` 里配了一条 `/media` 到 8000 的代理，否则图片会 404。
 
 ---
 
@@ -142,12 +154,12 @@ npm run dev        # http://localhost:5173
 
 写在这里，省得接手的人重新踩一遍：
 
-1. **前端源码 `vue/my-vue-project/src/` 没有提交**，仓库里只有 `package.json` / `vite.config.js` / `index.html`。前端跑不起来，需要把 `src/` 补上来。
+1. **前端代码比后端旧一个版本**：`src/` 是早期版本，后端后来加的 `cover`（封面上传）、`summary`、`slug` 三个字段前端没有对应 UI，`ArticleVote` 点赞表也已经不用了。页面能正常跑，但发布页不会上传封面。原机器上的绝对路径（`C:\Users\...`、`/Users/...`）已改成相对引用。
 2. **数据库不在仓库里**：`*.sqlite3` / `*.db` 被 `.gitignore` 排除。想直接体验只能自己 `migrate` 后造数据。
 3. **`Article.author_id` 是 `CharField` 而不是外键**，靠字符串存用户 id。当时是为了让前端好传，代价是没法用 ORM 做关联查询、也没法级联删除。正经做应该改成 `ForeignKey(AUTH_USER_MODEL)`。
-4. **`Navigation` 只是一张分类名字表**，没有层级和排序字段。
-5. **`/article/search` 没有分页**，数据量大了会一次性返回全部结果。
-6. **`/article/get` 也没有分页**，同上。
+4. **详情页靠 URL 传数据**：`/detail` 路由把整篇文章 JSON 序列化后塞进 query（`#/detail?data=...`），没有用 slug 去后端重新取。刷新或分享链接容易出问题，数据量也被 URL 长度卡住。
+5. **`Navigation` 只是一张分类名字表**，没有层级和排序字段。
+6. **`/article/get` 和 `/article/search` 都没有分页**，数据量大了会一次性返回全部结果。
 
 ---
 
