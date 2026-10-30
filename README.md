@@ -154,8 +154,6 @@ npm run dev        # http://localhost:5173
 
 ## 已知限制
 
-写在这里，省得接手的人重新踩一遍：
-
 1. **前端代码比后端旧一个版本**：`src/` 是早期版本，后端后来加的 `cover`（封面上传）、`summary`、`slug` 三个字段前端没有对应 UI，`ArticleVote` 点赞表也已经不用了。页面能正常跑，但发布页不会上传封面。原机器上的绝对路径（`C:\Users\...`、`/Users/...`）已改成相对引用。
 2. **数据库不在仓库里**：`*.sqlite3` / `*.db` 被 `.gitignore` 排除。想直接体验只能自己 `migrate` 后造数据。
 3. **`Article.author_id` 是 `CharField` 而不是外键**，靠字符串存用户 id。当时是为了让前端好传，代价是没法用 ORM 做关联查询、也没法级联删除。正经做应该改成 `ForeignKey(AUTH_USER_MODEL)`。
